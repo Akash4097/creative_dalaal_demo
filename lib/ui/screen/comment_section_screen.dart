@@ -1,4 +1,7 @@
+import 'package:creative_dalal/notifier/comment_service_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../data_models/comment.dart';
 
 class CommentSectionScreen extends StatefulWidget {
   const CommentSectionScreen({super.key});
@@ -9,6 +12,15 @@ class CommentSectionScreen extends StatefulWidget {
 
 class _CommentSectionScreenState extends State<CommentSectionScreen> {
   late final TextEditingController _controller = TextEditingController();
+  late final List<Comment> _comments;
+
+  final _notifier = CommentServiceNotifier();
+
+  @override
+  void initState() {
+    super.initState();
+    _comments = _notifier.getComments();
+  }
 
   @override
   void dispose() {
@@ -16,15 +28,30 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
     _controller.dispose();
   }
 
+  void _addComment() {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
+        _notifier.addComment(_controller.text);
+        _controller.clear();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildCommentTextField(),
-          ],
+        child: ListenableBuilder(
+          listenable: _notifier,
+          builder: (context, child) {
+            return Column(
+              children: [
+                _buildCommentTextField(),
+                _buildCommentsList(_comments),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -40,8 +67,22 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
         ),
         suffixIcon: IconButton(
           icon: const Icon(Icons.send),
-          onPressed: () {},
+          onPressed: _addComment,
         ),
+      ),
+    );
+  }
+
+  Widget _buildCommentsList(List<Comment> comments) {
+    final latestComments = comments;
+    return Expanded(
+      child: ListView.builder(
+        itemCount: latestComments.length,
+        itemBuilder: (context, index) {
+          final singleComment = latestComments[index];
+          final replies = _notifier.getReplies(singleComment.id);
+          return Text(singleComment.content);
+        },
       ),
     );
   }
