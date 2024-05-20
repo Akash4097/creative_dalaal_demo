@@ -46,6 +46,7 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
         child: ListenableBuilder(
           listenable: _notifier,
           builder: (context, child) {
+            print("rebuild commentsection: ");
             return Column(
               children: [
                 _buildCommentTextField(),
@@ -76,15 +77,14 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
 
   Widget _buildCommentsList(List<Comment> comments) {
     final latestComments = comments;
+
     return Expanded(
       child: ListView.builder(
         itemCount: latestComments.length,
         itemBuilder: (context, index) {
           final singleComment = latestComments[index];
-          final replies = _notifier.getReplies(singleComment.id);
           return CommentWidget(
             comment: singleComment,
-            replies: replies,
           );
         },
       ),
