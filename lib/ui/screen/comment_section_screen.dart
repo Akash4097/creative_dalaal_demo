@@ -46,7 +46,6 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
         child: ListenableBuilder(
           listenable: _notifier,
           builder: (context, child) {
-            print("rebuild commentsection: ");
             return Column(
               children: [
                 _buildCommentTextField(),
@@ -85,6 +84,7 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
           final singleComment = latestComments[index];
           return CommentWidget(
             comment: singleComment,
+            notifier: _notifier,
           );
         },
       ),

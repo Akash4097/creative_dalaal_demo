@@ -6,9 +6,11 @@ import '../../utils/date_format_extension.dart';
 
 class CommentWidget extends StatefulWidget {
   final Comment comment;
+  final CommentServiceNotifier notifier;
   const CommentWidget({
     super.key,
     required this.comment,
+    required this.notifier,
   });
 
   @override
@@ -17,16 +19,11 @@ class CommentWidget extends StatefulWidget {
 
 class _CommentWidgetState extends State<CommentWidget> {
   late final _replyController = TextEditingController();
-  late final CommentServiceNotifier _notifier;
+  late final _editController = TextEditingController();
   List<Comment> _replies = <Comment>[];
 
   bool _showReplyTextField = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _notifier = CommentServiceNotifier();
-  }
+  bool _isEditing = false;
 
   @override
   void dispose() {
@@ -36,7 +33,7 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   void _replyToComment() {
     if (_replyController.text.isNotEmpty) {
-      _notifier.addComment(
+      widget.notifier.addComment(
         _replyController.text,
         parentId: widget.comment.id,
       );
@@ -47,10 +44,23 @@ class _CommentWidgetState extends State<CommentWidget> {
     _replyController.clear();
   }
 
+  void _editComment() {
+    if (_editController.text.isNotEmpty) {
+      widget.notifier.editComment(widget.comment.id, _editController.text);
+    }
+    setState(() {
+      _isEditing = false;
+    });
+  }
+
+  void _deleteComment() {
+    widget.notifier.deleteComment(widget.comment.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    _replies = _notifier.getReplies(widget.comment.id);
+    _replies = widget.notifier.getReplies(widget.comment.id);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,15 +79,47 @@ class _CommentWidgetState extends State<CommentWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ListTile(
-                    title: Text(
-                      widget.comment.content,
-                      style: textTheme.titleLarge,
-                    ),
-                    subtitle: Text(
-                      widget.comment.timestamp.toFormattedDate(),
-                      style: textTheme.bodySmall,
-                    ),
-                  ),
+                      title: _isEditing
+                          ? TextField(
+                              controller: _editController
+                                ..text = widget.comment.content,
+                              onSubmitted: (_) => _editComment(),
+                              decoration: InputDecoration(
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.check),
+                                  onPressed: () => _editComment(),
+                                ),
+                              ),
+                            )
+                          : Text(
+                              widget.comment.content,
+                              style: textTheme.titleLarge,
+                            ),
+                      subtitle: Text(
+                        widget.comment.timestamp.toFormattedDate(),
+                        style: textTheme.bodySmall,
+                      ),
+                      trailing: PopupMenuButton(
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Text('Edit'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete'),
+                          ),
+                        ],
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            setState(() {
+                              _isEditing = true;
+                            });
+                          } else if (value == 'delete') {
+                            _deleteComment();
+                          }
+                        },
+                      )),
                   _showReplyTextField
                       ? IconButton(
                           onPressed: () {
@@ -123,6 +165,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                 padding: const EdgeInsets.only(left: 16.0),
                 child: CommentWidget(
                   comment: reply,
+                  notifier: widget.notifier,
                 ),
               );
             }).toList(),
