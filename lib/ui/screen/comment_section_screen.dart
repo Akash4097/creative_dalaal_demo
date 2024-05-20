@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:creative_dalal/notifier/comment_service_notifier.dart';
 import 'package:creative_dalal/ui/widgets/comment_widget.dart';
+import 'package:creative_dalal/utils/responsive.dart';
 import 'package:flutter/material.dart';
 
 import '../../data_models/comment.dart';
@@ -55,18 +56,20 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: ListenableBuilder(
-            listenable: _notifier,
-            builder: (context, child) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCommentTextField(),
-                  _buildShowAllCommentButton(),
-                  _buildCommentsList(_comments),
-                ],
-              );
-            },
+          child: ResponsiveWidget(
+            child: ListenableBuilder(
+              listenable: _notifier,
+              builder: (context, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCommentTextField(),
+                    _buildShowAllCommentButton(),
+                    _buildCommentsList(_comments),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
