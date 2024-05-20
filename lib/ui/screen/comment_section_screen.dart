@@ -40,19 +40,21 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListenableBuilder(
-          listenable: _notifier,
-          builder: (context, child) {
-            return Column(
-              children: [
-                _buildCommentTextField(),
-                _buildCommentsList(_comments),
-              ],
-            );
-          },
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListenableBuilder(
+            listenable: _notifier,
+            builder: (context, child) {
+              return Column(
+                children: [
+                  _buildCommentTextField(),
+                  _buildCommentsList(_comments),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -71,6 +73,7 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
           onPressed: _addComment,
         ),
       ),
+      onSubmitted: (_) => _addComment(),
     );
   }
 

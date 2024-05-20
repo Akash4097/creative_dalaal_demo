@@ -153,6 +153,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                       onPressed: _replyToComment,
                     ),
                   ),
+                  onSubmitted: (_) => _replyToComment(),
                 ),
               )
             : const SizedBox.shrink(),
