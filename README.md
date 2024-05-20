@@ -94,3 +94,5 @@ flutter run
 1. If there are more than four comments, a "Show Previous Comments" button will appear.
 2. Press the button to view all comments.
 3. Press "Hide Previous Comments" to collapse the view back to the latest four comments.
+
+**The user-name which are shown in the comments are selected randomly from the hard-coded list of user which can be found in `user.dart` file**
