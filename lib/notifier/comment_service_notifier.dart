@@ -7,7 +7,10 @@ class CommentServiceNotifier extends ChangeNotifier {
   final List<Comment> _comments = [];
 
   List<Comment> getComments() {
-    return _comments;
+    final comments =
+        _comments.where((comment) => comment.parentId == '').toList();
+    print("getcomment: $comments");
+    return comments;
   }
 
   void addComment(String content, {String? parentId}) {
@@ -20,7 +23,6 @@ class CommentServiceNotifier extends ChangeNotifier {
     );
     _comments.add(comment);
     notifyListeners();
-    print("inside add _comments $_comments");
   }
 
   void deleteComment(String id) {
@@ -31,7 +33,7 @@ class CommentServiceNotifier extends ChangeNotifier {
   }
 
   void editComment(String id, String newContent) {
-    final comment = getComments().firstWhere((comment) => comment.id == id);
+    final comment = _comments.firstWhere((comment) => comment.id == id);
     comment.content = newContent;
     notifyListeners();
   }

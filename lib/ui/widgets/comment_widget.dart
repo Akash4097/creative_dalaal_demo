@@ -6,11 +6,13 @@ import '../../utils/date_format_extension.dart';
 
 class CommentWidget extends StatefulWidget {
   final Comment comment;
+  final List<Comment> replies;
   final CommentServiceNotifier notifier;
   const CommentWidget({
     super.key,
     required this.comment,
     required this.notifier,
+    required this.replies,
   });
 
   @override
@@ -20,7 +22,6 @@ class CommentWidget extends StatefulWidget {
 class _CommentWidgetState extends State<CommentWidget> {
   late final _replyController = TextEditingController();
   late final _editController = TextEditingController();
-  List<Comment> _replies = <Comment>[];
 
   bool _showReplyTextField = false;
   bool _isEditing = false;
@@ -60,8 +61,6 @@ class _CommentWidgetState extends State<CommentWidget> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    _replies = widget.notifier.getReplies(widget.comment.id);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -160,12 +159,13 @@ class _CommentWidgetState extends State<CommentWidget> {
         Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: Column(
-            children: _replies.map((reply) {
+            children: widget.replies.map((reply) {
               return Padding(
                 padding: const EdgeInsets.only(left: 16.0),
                 child: CommentWidget(
                   comment: reply,
                   notifier: widget.notifier,
+                  replies: widget.notifier.getReplies(reply.id),
                 ),
               );
             }).toList(),

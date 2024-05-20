@@ -1,14 +1,14 @@
 class Comment {
   String id;
-  String parentId;
+  String? parentId;
   String content;
   DateTime timestamp;
 
   Comment({
     required this.id,
-    required this.parentId,
     required this.content,
     required this.timestamp,
+    this.parentId,
   });
 
   Comment copyWith({

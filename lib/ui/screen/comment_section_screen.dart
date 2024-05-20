@@ -75,16 +75,18 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
   }
 
   Widget _buildCommentsList(List<Comment> comments) {
-    final latestComments = comments;
+    final latestComments = _notifier.getComments();
 
     return Expanded(
       child: ListView.builder(
         itemCount: latestComments.length,
         itemBuilder: (context, index) {
           final singleComment = latestComments[index];
+          final replies = _notifier.getReplies(singleComment.id);
           return CommentWidget(
             comment: singleComment,
             notifier: _notifier,
+            replies: replies,
           );
         },
       ),
