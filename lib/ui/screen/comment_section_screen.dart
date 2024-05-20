@@ -1,4 +1,5 @@
 import 'package:creative_dalal/notifier/comment_service_notifier.dart';
+import 'package:creative_dalal/ui/widgets/comment_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../data_models/comment.dart';
@@ -81,7 +82,10 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
         itemBuilder: (context, index) {
           final singleComment = latestComments[index];
           final replies = _notifier.getReplies(singleComment.id);
-          return Text(singleComment.content);
+          return CommentWidget(
+            comment: singleComment,
+            replies: replies,
+          );
         },
       ),
     );
