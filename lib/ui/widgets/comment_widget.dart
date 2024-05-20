@@ -64,115 +64,147 @@ class _CommentWidgetState extends State<CommentWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 24.0),
-              child: Icon(
-                Icons.person_pin,
-                size: 32,
-              ),
+        _buildCommentContent(textTheme),
+        _buildReplyCommentTextField(),
+        _buildReplyComment(),
+      ],
+    );
+  }
+
+  Padding _buildReplyComment() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: Column(
+        children: widget.replies.map((reply) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: CommentWidget(
+              comment: reply,
+              notifier: widget.notifier,
+              replies: widget.notifier.getReplies(reply.id),
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                      title: _isEditing
-                          ? TextField(
-                              controller: _editController
-                                ..text = widget.comment.content,
-                              onSubmitted: (_) => _editComment(),
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.check),
-                                  onPressed: () => _editComment(),
-                                ),
-                              ),
-                            )
-                          : Text(
-                              widget.comment.content,
-                              style: textTheme.titleLarge,
-                            ),
-                      subtitle: Text(
-                        widget.comment.timestamp.toFormattedDate(),
-                        style: textTheme.bodySmall,
-                      ),
-                      trailing: PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Text('Edit'),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete'),
-                          ),
-                        ],
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            setState(() {
-                              _isEditing = true;
-                            });
-                          } else if (value == 'delete') {
-                            _deleteComment();
-                          }
-                        },
-                      )),
-                  _showReplyTextField
-                      ? IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _showReplyTextField = false;
-                            });
-                          },
-                          icon: const Icon(Icons.close),
-                        )
-                      : TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _showReplyTextField = true;
-                            });
-                          },
-                          child: const Text("Reply"),
-                        ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        _showReplyTextField
-            ? Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: TextField(
-                  controller: _replyController,
-                  decoration: InputDecoration(
-                    labelText: 'Reply',
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: _replyToComment,
-                    ),
-                  ),
-                  onSubmitted: (_) => _replyToComment(),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildReplyCommentTextField() {
+    return _showReplyTextField
+        ? Padding(
+            padding: const EdgeInsets.only(left: 40),
+            child: TextField(
+              controller: _replyController,
+              decoration: InputDecoration(
+                labelText: 'Reply',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _replyToComment,
                 ),
-              )
-            : const SizedBox.shrink(),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
+              ),
+              onSubmitted: (_) => _replyToComment(),
+            ),
+          )
+        : const SizedBox.shrink();
+  }
+
+  Row _buildCommentContent(TextTheme textTheme) {
+    return Row(
+      children: [
+        _commentUserIcon(),
+        Expanded(
           child: Column(
-            children: widget.replies.map((reply) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: CommentWidget(
-                  comment: reply,
-                  notifier: widget.notifier,
-                  replies: widget.notifier.getReplies(reply.id),
-                ),
-              );
-            }).toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                title: _commentContentTitle(textTheme),
+                subtitle: _commentFormattedDate(textTheme),
+                trailing: _commentEditAndDeleteButton(),
+              ),
+              _showAndHideReplyTextField(),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _showAndHideReplyTextField() {
+    return _showReplyTextField
+        ? IconButton(
+            onPressed: () {
+              setState(() {
+                _showReplyTextField = false;
+              });
+            },
+            icon: const Icon(Icons.close),
+          )
+        : TextButton(
+            onPressed: () {
+              setState(() {
+                _showReplyTextField = true;
+              });
+            },
+            child: const Text("Reply"),
+          );
+  }
+
+  Text _commentFormattedDate(TextTheme textTheme) {
+    return Text(
+      widget.comment.timestamp.toFormattedDate(),
+      style: textTheme.bodySmall,
+    );
+  }
+
+  PopupMenuButton<String> _commentEditAndDeleteButton() {
+    return PopupMenuButton(
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'edit',
+          child: Text('Edit'),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Text('Delete'),
+        ),
+      ],
+      onSelected: (value) {
+        if (value == 'edit') {
+          setState(() {
+            _isEditing = true;
+          });
+        } else if (value == 'delete') {
+          _deleteComment();
+        }
+      },
+    );
+  }
+
+  Widget _commentContentTitle(TextTheme textTheme) {
+    return _isEditing
+        ? TextField(
+            controller: _editController..text = widget.comment.content,
+            onSubmitted: (_) => _editComment(),
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.check),
+                onPressed: () => _editComment(),
+              ),
+            ),
+          )
+        : Text(
+            widget.comment.content,
+            style: textTheme.titleLarge,
+          );
+  }
+
+  Padding _commentUserIcon() {
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 24.0),
+      child: Icon(
+        Icons.person_pin,
+        size: 32,
+      ),
     );
   }
 }
