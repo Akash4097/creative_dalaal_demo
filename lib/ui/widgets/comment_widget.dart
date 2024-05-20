@@ -25,6 +25,7 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   bool _showReplyTextField = false;
   bool _isEditing = false;
+  bool _showReplies = false;
 
   @override
   void dispose() {
@@ -58,6 +59,12 @@ class _CommentWidgetState extends State<CommentWidget> {
     widget.notifier.deleteComment(widget.comment.id);
   }
 
+  void _toggleReplies() {
+    setState(() {
+      _showReplies = !_showReplies;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -71,22 +78,25 @@ class _CommentWidgetState extends State<CommentWidget> {
     );
   }
 
-  Padding _buildReplyComment() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0),
-      child: Column(
-        children: widget.replies.map((reply) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: CommentWidget(
-              comment: reply,
-              notifier: widget.notifier,
-              replies: widget.notifier.getReplies(reply.id),
-            ),
-          );
-        }).toList(),
-      ),
-    );
+  Widget _buildReplyComment() {
+    if (_showReplies) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 16.0),
+        child: Column(
+          children: widget.replies.map((reply) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: CommentWidget(
+                comment: reply,
+                notifier: widget.notifier,
+                replies: widget.notifier.getReplies(reply.id),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildReplyCommentTextField() {
@@ -122,6 +132,15 @@ class _CommentWidgetState extends State<CommentWidget> {
                 trailing: _commentEditAndDeleteButton(),
               ),
               _showAndHideReplyTextField(),
+              if (widget.replies.isNotEmpty)
+                TextButton(
+                  onPressed: _toggleReplies,
+                  child: Text(
+                    _showReplies
+                        ? 'Hide replies'
+                        : 'Show replies (${widget.replies.length})',
+                  ),
+                ),
             ],
           ),
         ),
