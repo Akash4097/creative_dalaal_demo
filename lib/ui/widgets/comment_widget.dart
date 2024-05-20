@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:creative_dalal/data_models/user.dart';
 import 'package:flutter/material.dart';
 
 import '../../data_models/comment.dart';
@@ -35,8 +38,15 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   void _replyToComment() {
     if (_replyController.text.isNotEmpty) {
+      final parentUser = usersList.firstWhere(
+        (user) => user.id == widget.comment.userId,
+      );
+      final replyUser = usersList
+          .where((user) => user.id != parentUser.id)
+          .toList()[Random().nextInt(4)];
       widget.notifier.addComment(
-        _replyController.text,
+        content: _replyController.text,
+        user: replyUser,
         parentId: widget.comment.id,
       );
     }
@@ -200,6 +210,8 @@ class _CommentWidgetState extends State<CommentWidget> {
   }
 
   Widget _commentContentTitle(TextTheme textTheme) {
+    final user =
+        usersList.firstWhere((user) => user.id == widget.comment.userId);
     return _isEditing
         ? TextField(
             controller: _editController..text = widget.comment.content,
@@ -211,9 +223,21 @@ class _CommentWidgetState extends State<CommentWidget> {
               ),
             ),
           )
-        : Text(
-            widget.comment.content,
-            style: textTheme.titleLarge,
+        : Row(
+            children: [
+              Text(
+                user.name,
+                style: textTheme.titleLarge?.copyWith(
+                  color: Colors.blue,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.comment.content,
+                style: textTheme.titleMedium,
+              ),
+            ],
           );
   }
 

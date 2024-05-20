@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:creative_dalal/notifier/comment_service_notifier.dart';
 import 'package:creative_dalal/ui/widgets/comment_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../data_models/comment.dart';
+import '../../data_models/user.dart';
 
 class CommentSectionScreen extends StatefulWidget {
   const CommentSectionScreen({super.key});
@@ -32,8 +35,9 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
 
   void _addComment() {
     if (_controller.text.isNotEmpty) {
+      final user = usersList[Random().nextInt(5)];
       setState(() {
-        _notifier.addComment(_controller.text);
+        _notifier.addComment(content: _controller.text, user: user);
         _controller.clear();
       });
     }
