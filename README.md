@@ -1,4 +1,4 @@
-# Flutter Comment Section App
+# Creative Dalaal Demo app
 
 This is a Flutter application that implements a comment section with nested replies. It allows users to add comments, reply to existing comments, edit, and delete comments. The application ensures that nested replies are scrollable and the latest comments are displayed by default with an option to view previous comments.
 
@@ -28,7 +28,7 @@ Follow these steps to set up and run the project:
    ```bash
    git clone git@github.com:Akash4097/creative_dalaal_demo.git
 
-   cd flutter-comment-section-app
+   cd creative_dalaal_demo
 
 2. **Install dependencies:**
 
