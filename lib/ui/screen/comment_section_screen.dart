@@ -15,6 +15,7 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
   late final TextEditingController _controller = TextEditingController();
   late final List<Comment> _comments;
 
+  bool _showAllComments = false;
   final _notifier = CommentServiceNotifier();
 
   @override
@@ -38,6 +39,12 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
     }
   }
 
+  void _toggleCommentsVisibility() {
+    setState(() {
+      _showAllComments = !_showAllComments;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -48,8 +55,10 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
             listenable: _notifier,
             builder: (context, child) {
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildCommentTextField(),
+                  _buildShowAllCommentButton(),
                   _buildCommentsList(_comments),
                 ],
               );
@@ -58,6 +67,19 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildShowAllCommentButton() {
+    final comments = _notifier.getComments();
+    if (comments.length > 4) {
+      return TextButton(
+        onPressed: _toggleCommentsVisibility,
+        child: _showAllComments
+            ? const Text("Hide Previous Comments")
+            : const Text("Show Previous Comments"),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   TextField _buildCommentTextField() {
@@ -78,7 +100,10 @@ class _CommentSectionScreenState extends State<CommentSectionScreen> {
   }
 
   Widget _buildCommentsList(List<Comment> comments) {
-    final latestComments = _notifier.getComments();
+    final comments = _notifier.getComments()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    final latestComments =
+        _showAllComments ? comments : comments.take(4).toList();
 
     return Expanded(
       child: ListView.builder(
